@@ -15,4 +15,3 @@ build/*
 *.png
 *.DS_store
 *.ovl
-libs/libtesla/*
