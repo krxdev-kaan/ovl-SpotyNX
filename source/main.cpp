@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <switch.h>
+#include "server.hpp"
 
 using namespace std;
 
@@ -46,7 +47,8 @@ public:
         pausePlay->setClickListener([](s64 keys) {
             if (keys & KEY_A == KEY_A) 
             {
-                //Implement IPC Connection
+                SpotyIPCRamDisk* activeDisk = retrieveIPC();
+                writeToIPC(0x1, activeDisk->fileIndex);
                 return true;
             }
 
@@ -58,7 +60,8 @@ public:
         skip->setClickListener([](s64 keys) {
             if (keys & KEY_A == KEY_A) 
             {
-                //Implement IPC Connection
+                SpotyIPCRamDisk* activeDisk = retrieveIPC();
+                writeToIPC(0x2, activeDisk->fileIndex);
                 return true;
             }
 
@@ -70,7 +73,8 @@ public:
         prev->setClickListener([](s64 keys) {
             if (keys & KEY_A == KEY_A) 
             {
-                //Implement IPC Connection
+                SpotyIPCRamDisk* activeDisk = retrieveIPC();
+                writeToIPC(0x3, activeDisk->fileIndex);
                 return true;
             }
 
@@ -98,10 +102,10 @@ public:
 };
 
 
-class TemplateOverlay : public tsl::Overlay {
+class SpotyeOverlay : public tsl::Overlay {
 public:
-    TemplateOverlay() { }
-    ~TemplateOverlay() { }
+    SpotyeOverlay() { }
+    ~SpotyeOverlay() { }
     
     tsl::Gui* onSetup() 
     { 
@@ -114,6 +118,8 @@ public:
         rc = timeInitialize();
         rc = fsInitialize();
         rc = fsdevMountSdmc();
+
+        setupIPC();
 
         return new GuiMain(); 
     }
@@ -131,10 +137,11 @@ public:
     	hidsysExit();
         smExit();
         socketExit();
+        stopIPC();
     }
 };
 
 tsl::Overlay *overlayLoad() 
 {
-    return new TemplateOverlay();
+    return new SpotyeOverlay();
 }
